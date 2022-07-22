@@ -24,7 +24,7 @@ export default function PostItems() {
           New Post
         </Link>
       </div>
-      <ul className="post-list">
+      <ul className="posts-list">
         {posts.map((post) => {
           return (
             <li key={post.id}>
