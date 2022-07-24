@@ -70,3 +70,13 @@ export async function getUser(request: Request) {
     return null;
   }
 }
+
+// Logout user and destroy session
+export async function logout(request: Request) {
+  const session = await storage.getSession(request.headers.get("Cookie"));
+  return redirect("/auth/logout", {
+    headers: {
+      "Set-Cookie": await storage.destroySession(session),
+    },
+  });
+}
