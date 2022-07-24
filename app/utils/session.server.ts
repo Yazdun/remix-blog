@@ -26,6 +26,17 @@ if (!sessionSecret) {
   throw new Error("No session secret");
 }
 
+// Register new user
+export async function register({ username, password }) {
+  const passwordHash = await bcrypt.hash(password, 10);
+  return db.user.create({
+    data: {
+      username,
+      passwordHash,
+    },
+  });
+}
+
 // create session storage
 const storage = createCookieSessionStorage({
   cookie: {

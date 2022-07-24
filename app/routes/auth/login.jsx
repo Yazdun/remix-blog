@@ -1,6 +1,6 @@
 import { useActionData } from "@remix-run/react";
 import { redirect, json } from "@remix-run/node";
-import { login, createUserSession } from "~/utils/session.server";
+import { login, register, createUserSession } from "~/utils/session.server";
 import { db } from "~/utils/db.server";
 
 function validateUsername(username) {
@@ -54,10 +54,30 @@ export const action = async ({ request }) => {
     }
 
     case "register": {
-      // check if user exists
-      // create the user
-      // create user session
-      break;
+      // Check if user exists
+      const userExists = await db.user.findFirst({
+        where: {
+          username,
+        },
+      });
+      if (userExists) {
+        return badRequest({
+          fields,
+          fieldErrors: { username: `User ${username} already exists` },
+        });
+      }
+
+      // Create user
+      const user = await register({ username, password });
+      if (!user) {
+        return badRequest({
+          fields,
+          formError: "Something went wrong",
+        });
+      }
+
+      // Create session
+      return createUserSession(user.id, "/posts");
     }
 
     default: {

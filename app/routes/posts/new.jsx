@@ -2,6 +2,7 @@ import { Link, useActionData } from "@remix-run/react";
 import { json, redirect } from "@remix-run/node";
 import React from "react";
 import { db } from "~/utils/db.server";
+import { getUser } from "~/utils/session.server";
 
 function validateTitle(title) {
   if (typeof title !== String || title.length < 3) {
@@ -24,6 +25,7 @@ export const action = async ({ request }) => {
   const title = form.get("title");
   const body = form.get("body");
   const fields = { title, body };
+  const user = await getUser(request);
 
   const fieldErrors = {
     title: validateTitle(title),
@@ -34,7 +36,7 @@ export const action = async ({ request }) => {
     return badRequest({ fieldErrors, fields });
   }
 
-  const post = await db.post.create({ data: fields });
+  const post = await db.post.create({ data: { ...fields, userId: user.id } });
 
   return redirect(`/posts/${post.id}`);
 };
